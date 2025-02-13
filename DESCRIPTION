@@ -1,11 +1,18 @@
 Package: rrminfo
-Title: What the Package Does (One Line, Title Case)
+Title: RRM & Post-RRM Information Management Tools
 Version: 0.0.0.9000
 Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
-License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
-    license
+    person("Antsa", "Rajaonah", , "antsa.rajaonah@outlook.com", role = c("aut", "cre"))
+Description: This package includes the tools used by REACH Mali to produce analyses within the framework of RRM and post-RRM information management.The analytical models were designed by the Post-RRM team at IMPACT Initiatives Mali. Sharing this package aims to ensure transparency in calculation processes and facilitate their understanding by all users.
+License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
+Imports:
+    stats,
+    dplyr,
+    lubridate,
+    magrittr
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
