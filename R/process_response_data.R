@@ -3,6 +3,7 @@
 #' This function processes and reshapes response data from humanitarian interventions.
 #' It aggregates response information at the unique ID (`uuid`) level and calculates summary statistics.
 #'
+#' @name process_response_data
 #' @param database A dataframe containing response data.
 #' @param uuid The column name representing unique IDs (e.g., alert uuid).
 #' @param response_actor Column representing the organizations providing assistance.
@@ -62,8 +63,10 @@
 #'   livelihood_support = c(0, 1, 1, 0, 1),
 #'   households_supported = c(3, 4, 5, NA, 2),
 #'   people_supported = c(10, 15, 20, NA, 5),
-#'   response_start_date = as.Date(c("2024-01-10", "2024-01-15", "2024-02-01", "2024-02-10", "2024-03-05")),
-#'   response_end_date = as.Date(c("2024-01-20", "2024-01-25", "2024-02-10", "2024-02-20", "2024-03-10")),
+#'   response_start_date = as.Date(c("2024-01-10", "2024-01-15", "2024-02-01",
+#'    "2024-02-10", "2024-03-05")),
+#'   response_end_date = as.Date(c("2024-01-20", "2024-01-25", "2024-02-10",
+#'    "2024-02-20", "2024-03-10")),
 #'   donor = c("Donor1", "Donor1", "Donor2", "Donor2", "Donor3"),
 #'   region = c("Region1", "Region1", "Region2", "Region2", "Region3"),
 #'   cercle = c("Cercle1", "Cercle1", "Cercle2", "Cercle2", "Cercle3")

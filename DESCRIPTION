@@ -13,6 +13,7 @@ Imports:
     rlang,
     tidyr,
     stats,
+    stringr,
     dplyr,
     lubridate,
     magrittr
