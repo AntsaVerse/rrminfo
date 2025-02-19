@@ -34,27 +34,31 @@ clean_dates <- function(database, start_date, end_date) {
   database <- database %>%
     dplyr::mutate(
       # Compute days gap between the two dates
-      days_gap = lubridate::interval({{start_date}}, {{end_date}}) %/% lubridate::days(1),
+      days_gap = lubridate::interval(.data[[start_date]], .data[[end_date]]) %/% lubridate::days(1),
 
-      # Detect and Replace Outliers with Median using the interquartile range (IQR) method
+      # Detect and Replace Outliers using the IQR method
       Q1 = stats::quantile(days_gap, 0.25, na.rm = TRUE),
       Q3 = stats::quantile(days_gap, 0.75, na.rm = TRUE),
       IQR = Q3 - Q1,
       lower_bound = Q1 - 1.5 * IQR,
       upper_bound = Q3 + 1.5 * IQR,
-      days_gap = dplyr::if_else(days_gap < 0 |days_gap < lower_bound | days_gap > upper_bound,
-                                as.integer(round(stats::median(days_gap, na.rm = TRUE))),
-                                days_gap),
+
+      days_gap = ifelse(days_gap < 0 | days_gap < lower_bound | days_gap > upper_bound,
+                        as.integer(round(stats::median(days_gap, na.rm = TRUE))),
+                        days_gap),
 
       # Impute missing dates
-      end_date= dplyr::if_else(!is.na({{start_date}})&!is.na({{end_date}}),
-                                     {{start_date}} + lubridate::days(days_gap),
-                                     {{end_date}}),
+      !!end_date := case_when(
+        !is.na(.data[[start_date]]) & is.na(.data[[end_date]]) ~ .data[[start_date]] + lubridate::days(days_gap),
+        TRUE ~ .data[[end_date]]
+      ),
 
-      start_date= dplyr::if_else(!is.na({{end_date}}) & is.na({{start_date}}),
-                                       {{end_date}} - lubridate::days(as.integer(round(stats::median(days_gap, na.rm = TRUE)))),
-                                       {{start_date}})
-    )%>% dplyr::select(-c(Q1,Q3,IQR,lower_bound,upper_bound,days_gap))
+      !!start_date := case_when(
+        !is.na(.data[[end_date]]) & is.na(.data[[start_date]]) ~ .data[[end_date]] - lubridate::days(as.integer(round(stats::median(days_gap, na.rm = TRUE)))),
+        TRUE ~ .data[[start_date]]
+      )
+    ) %>%
+    dplyr::select(-c(Q1, Q3, IQR, lower_bound, upper_bound, days_gap))
 
   return(database)
 }
