@@ -27,8 +27,8 @@ utils::globalVariables(c("days_gap", "Q1", "Q3", "IQR", "lower_bound", "upper_bo
 #'   end_date = as.Date(c("2024-01-10", "2024-02-15", "2024-03-20", NA, "2024-05-20"))
 #' )
 #'
-#' clean_data <- clean_dates(data, start_date, end_date)
-#' print(clean_data)
+#' cleaned_data <- clean_dates(data, start_date = "start_date", end_date = "end_date")
+#' print(cleaned_data)
 
 clean_dates <- function(database, start_date, end_date) {
   database <- database %>%
@@ -49,7 +49,7 @@ clean_dates <- function(database, start_date, end_date) {
 
       # Impute missing dates
       !!end_date := case_when(
-        !is.na(.data[[start_date]]) & is.na(.data[[end_date]]) ~ .data[[start_date]] + lubridate::days(days_gap),
+        !is.na(.data[[start_date]]) & is.na(.data[[end_date]]) ~ .data[[start_date]] + lubridate::days(as.integer(round(stats::median(days_gap, na.rm = TRUE)))),
         TRUE ~ .data[[end_date]]
       ),
 

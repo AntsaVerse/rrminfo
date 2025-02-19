@@ -39,7 +39,7 @@ data <- data.frame(
 )
 
 hhsize_value <- 5  # estimated average household size from MSNA
-cleaned_data <- clean_HH_number(data, hh_number, ind_number, hhsize_value)
+cleaned_data <- clean_HH_number(data, "hh_number", "ind_number", hhsize_value)
 print(cleaned_data)
 
 }

@@ -30,6 +30,6 @@ data <- data.frame(
   end_date = as.Date(c("2024-01-10", "2024-02-15", "2024-03-20", NA, "2024-05-20"))
 )
 
-clean_data <- clean_dates(data, start_date, end_date)
-print(clean_data)
+cleaned_data <- clean_dates(data, start_date = "start_date", end_date = "end_date")
+print(cleaned_data)
 }

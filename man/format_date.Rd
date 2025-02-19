@@ -4,12 +4,14 @@
 \alias{format_date}
 \title{Format Date Columns}
 \usage{
-format_date(database, dates_vector)
+format_date(database, dates_vector, date_format = "\%Y-\%m-\%d")
 }
 \arguments{
 \item{database}{A dataframe containing date columns.}
 
 \item{dates_vector}{A character vector of column names to convert to Date format.}
+
+\item{date_format}{A character string specifying the format of the input dates (default: "\%Y-\%m-\%d")}
 }
 \value{
 A dataframe with formatted date columns.
@@ -24,7 +26,7 @@ organisation_name = c("org_1", "org_2", "org_3"),
 date2=c("2025-02-05", "2025-01-30", "2025-02-05")
 )
 
-df<-format_date(database=df,dates_vector=c("date1","date2"))
+df<-format_date(database=df,dates_vector=c("date1","date2"),date_format = "\%Y-\%m-\%d")
 
 class(df$date1)
 class(df$date2)

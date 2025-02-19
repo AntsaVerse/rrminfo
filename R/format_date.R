@@ -4,7 +4,7 @@
 #'
 #' @param database A dataframe containing date columns.
 #' @param dates_vector A character vector of column names to convert to Date format.
-#'
+#' @param date_format A character string specifying the format of the input dates (default: "%Y-%m-%d")
 #' @return A dataframe with formatted date columns.
 #' @importFrom dplyr mutate across all_of
 #' @importFrom magrittr %>%
@@ -16,13 +16,17 @@
 #'date2=c("2025-02-05", "2025-01-30", "2025-02-05")
 #')
 #'
-#'df<-format_date(database=df,dates_vector=c("date1","date2"))
+#'df<-format_date(database=df,dates_vector=c("date1","date2"),date_format = "%Y-%m-%d")
 #'
 #'class(df$date1)
 #'class(df$date2)
 
-format_date <- function(database, dates_vector) {
+format_date <- function(database, dates_vector, date_format = "%Y-%m-%d") {
   database <- database %>%
-    dplyr::mutate(dplyr::across(dplyr::all_of(dates_vector), ~ as.Date(.x, origin = "1899-12-30")))
+    dplyr::mutate(dplyr::across(
+      dplyr::all_of(dates_vector),
+      ~ as.Date(.x, format = date_format)
+    ))
   return(database)
 }
+
