@@ -30,6 +30,8 @@
 #'
 clean_HH_number <- function(database, hh_number, ind_number, hhsize) {
   # Ensure hhsize is treated as a single integer value
+  hh_number <- as.integer(round(hh_number))
+  ind_number <- as.integer(round(ind_number))
   hhsize <- as.integer(round(hhsize))
 
   database <- database %>%
