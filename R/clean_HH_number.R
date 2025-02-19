@@ -29,32 +29,31 @@
 #' print(cleaned_data)
 #'
 clean_HH_number <- function(database, hh_number, ind_number, hhsize) {
-  # Ensure hhsize is treated as a single integer value
+  # Ensure hhsize is a valid integer
   hhsize <- as.integer(round(hhsize))
+  if (hhsize <= 0) stop("Household size (hhsize) must be greater than zero.")
 
   database <- database %>%
-    dplyr::mutate(
-      # If hh_number is missing but ind_number is available, estimate hh_number using hhsize
-      hh_number = dplyr::if_else(
-        is.na(hh_number) & !is.na(ind_number),
-        round(ind_number / hhsize),
-        hh_number
+    mutate(
+      !!hh_number := if_else(
+        is.na(.data[[hh_number]]) & !is.na(.data[[ind_number]]),
+        round(.data[[ind_number]] / hhsize),
+        .data[[hh_number]]
       ),
 
-      # If ind_number is missing but hh_number is available, estimate ind_number using hhsize
-      ind_number = dplyr::if_else(
-        is.na(ind_number) & !is.na(hh_number),
-        round(hh_number * hhsize),
-        ind_number
+      !!ind_number := if_else(
+        is.na(.data[[ind_number]]) & !is.na(.data[[hh_number]]),
+        round(.data[[hh_number]] * hhsize),
+        .data[[ind_number]]
       ),
 
-      # If hh_number > ind_number, adjust hh_number to maintain logical consistency
-      hh_number = dplyr::if_else(
-        !is.na(hh_number) & !is.na(ind_number) & hh_number > ind_number,
-        round(ind_number / hhsize),
-        hh_number
+      !!hh_number := if_else(
+        !is.na(.data[[hh_number]]) & !is.na(.data[[ind_number]]) & .data[[hh_number]] > .data[[ind_number]],
+        round(.data[[ind_number]] / hhsize),
+        .data[[hh_number]]
       )
     )
 
   return(database)
 }
+
