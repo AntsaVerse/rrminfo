@@ -32,14 +32,14 @@ library(dplyr)
 
 df <- data.frame(
   uuid = c("A1", "B2", "C3"),
-  rrm_started = c(1, 0, 0),
+  rrm_number = c(1, 0, 0),
   rrm_start_date = as.Date(c("2024-01-10", NA, NA)),
   alert_status = c("Validée", "Validée", "Pending"),
   incident_date = as.Date(c("2024-01-01", "2024-02-01", "2024-03-01")),
   time_alert_to_rrm = c(10, NA, NA)
 )
 
-df <- add_prev_postrrm_date(df, "rrm_started", "rrm_start_date",
+df <- add_prev_postrrm_date(df, "rrm_number", "rrm_start_date",
                             "alert_status", "Validée", "incident_date",
                             "time_alert_to_rrm")
 print(df)
