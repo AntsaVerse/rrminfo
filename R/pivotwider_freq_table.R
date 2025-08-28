@@ -17,7 +17,7 @@
 #' @export
 #'
 #' @examples
-#' # reformat_summary(df, admin = region, pop_group = group,
+#' # pivotwider_freq_table(df, admin = region, pop_group = group,
 #' #                  question = q, reponse = r, value = val,
 #' #                  moe_var = moe, n_var = n)
 
@@ -96,14 +96,3 @@ pivotwider_freq_table <- function(df, admin, pop_group, question, reponse, value
   cat(cli::col_cyan("✅ Traitement terminé !...\n"))
   return(df_final)
 }
-
-
-frequence_formatted<-reformat_summary(
-  df=analyse_ensemble,
-  admin=admin,
-  pop_group=pop_group,
-  question=analysis_var,
-  reponse=analysis_var_value,
-  value=stat,
-  moe_var = moe,
-  n_var = n)
