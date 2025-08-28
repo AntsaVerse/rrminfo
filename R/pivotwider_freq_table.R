@@ -17,7 +17,7 @@
 #' @export
 #'
 #' @examples
-#' # reformat_summary(df, admin = region, pop_group = group,
+#' # pivotwider_freq_table(df, admin = region, pop_group = group,
 #' #                  question = q, reponse = r, value = val,
 #' #                  moe_var = moe, n_var = n)
 
@@ -25,29 +25,29 @@ pivotwider_freq_table <- function(df, admin, pop_group, question, reponse, value
   cat("\014")
   cat(cli::col_blue("Prends un bon thé avec des herbes, je m'occupe de tout.... \n"))
   Sys.sleep(3)
-  
+
   # Étape 1 : Pivot des données en format large
   cat(cli::col_red("Étape 1/4 : Pivot des données en format large...\n"))
-  
+
   moe_sym <- rlang::ensym(moe_var)
   n_sym   <- rlang::ensym(n_var)
-  
+
   df_wide <- df %>%
     tidyr::pivot_wider(
       names_from = c({{question}}, {{reponse}}),
       values_from = c({{value}})
     )%>%
     dplyr::select(-!!moe_sym, -!!n_sym)
-  
+
   # Étape 2 : Calcul des stats moe/n par question
   cat(cli::col_green("Étape 2/4 : Calcul des stats moe/n par question...\n"))
-  
+
   unique_questions <- unique(df[[rlang::as_name(rlang::ensym(question))]])
   pb <- progress::progress_bar$new(
     format = paste0(crayon::green("Progression :current/:total [:bar] :percent")),
     total = length(unique_questions), clear = FALSE, width = 60
   )
-  
+
   moe_stats_list <- lapply(unique_questions, function(q) {
     pb$tick()
     df_sub <- df %>% filter({{question}} == q)
@@ -60,17 +60,17 @@ pivotwider_freq_table <- function(df, admin, pop_group, question, reponse, value
         .groups    = "drop"
       )
   })
-  
+
   moe_stats <- bind_rows(moe_stats_list) %>%
     tidyr::pivot_wider(
       names_from  = {{question}},
       values_from = c(moe_mean, moe_median, n_total),
       names_glue  = "{.name}_{.value}"
     )
-  
+
   # Étape 3 : Fusionner les tables
   cat(cli::col_yellow("Étape 3/4 : Fusion des tables...\n"))
-  
+
   df_final <- df_wide %>%
     dplyr::left_join(
       moe_stats,
@@ -79,10 +79,10 @@ pivotwider_freq_table <- function(df, admin, pop_group, question, reponse, value
         rlang::as_name(rlang::ensym(pop_group))
       )
     )
-  
+
   # Étape 4 : Calcul des moyennes finales par groupe
   cat(cli::col_magenta("Étape 4/4 : Calcul des moyennes finales par groupe...\n"))
-  
+
   df_final <- df_final %>%
     dplyr::group_by({{admin}}, {{pop_group}}) %>%
     dplyr::summarise(
@@ -92,18 +92,7 @@ pivotwider_freq_table <- function(df, admin, pop_group, question, reponse, value
     dplyr::mutate(
       dplyr::across(where(is.numeric), ~ ifelse(is.nan(.x), 0, .x))
     )
-  
+
   cat(cli::col_cyan("✅ Traitement terminé !...\n"))
   return(df_final)
 }
-
-
-frequence_formatted<-reformat_summary(
-  df=analyse_ensemble,
-  admin=admin,
-  pop_group=pop_group,
-  question=analysis_var,
-  reponse=analysis_var_value,
-  value=stat,
-  moe_var = moe,
-  n_var = n)
