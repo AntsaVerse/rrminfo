@@ -51,7 +51,7 @@ pivotwider_freq_table <- function(df, admin, pop_group, question, reponse, value
       summarise(
         moe_mean   = mean(!!moe_sym, na.rm = TRUE),
         moe_median = median(!!moe_sym, na.rm = TRUE),
-        n_total    = sum(!!n_sym, na.rm = TRUE),
+        n    = sum(!!n_sym, na.rm = TRUE),
         .groups    = "drop"
       )
   }, .progress = TRUE)
