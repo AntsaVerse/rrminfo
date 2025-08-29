@@ -59,7 +59,7 @@ pivotwider_freq_table <- function(df, admin, pop_group, question, reponse, value
   moe_stats <- dplyr::bind_rows(moe_stats_list) %>%
     tidyr::pivot_wider(
       names_from  = {{question}},
-      values_from = c(moe_mean, moe_median, n_total),
+      values_from = c(moe_mean, moe_median, n),
       names_glue  = "{.name}_{.value}"
     )
 
