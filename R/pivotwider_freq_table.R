@@ -43,13 +43,8 @@ pivotwider_freq_table <- function(df, admin, pop_group, question, reponse, value
   cat(cli::col_green("Étape 2/4 : Calcul des stats moe/n par question...\n"))
 
   unique_questions <- unique(df[[rlang::as_name(rlang::ensym(question))]])
-  pb <- progress::progress_bar$new(
-    format = paste0(crayon::green("Progression :current/:total [:bar] :percent")),
-    total = length(unique_questions), clear = FALSE, width = 60
-  )
 
-  moe_stats_list <- lapply(unique_questions, function(q) {
-    pb$tick()
+  moe_stats_list <- purrr::map(unique_questions, function(q) {
     df_sub <- df %>% filter({{question}} == q)
     df_sub %>%
       group_by({{admin}}, {{pop_group}}, {{question}}) %>%
@@ -59,9 +54,9 @@ pivotwider_freq_table <- function(df, admin, pop_group, question, reponse, value
         n    = max(!!n_sym, na.rm = TRUE),
         .groups    = "drop"
       )
-  })
+  }, .progress = TRUE)
 
-  moe_stats <- bind_rows(moe_stats_list) %>%
+  moe_stats <- dplyr::bind_rows(moe_stats_list) %>%
     tidyr::pivot_wider(
       names_from  = {{question}},
       values_from = c(moe_mean, moe_median, n),
