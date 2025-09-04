@@ -1,0 +1,66 @@
+#' Lire un fichier brut Kobo avec typage auto
+#'
+#' Cette fonction lit un fichier brut (souvent issu de KoboToolbox) en appliquant
+#' automatiquement les bons types de colonnes (numeric, text) en fonction du
+#' fichier `survey` de l’outil Kobo.
+#'
+#' @param path_raw_file Chemin du fichier des données brutes (.xlsx).
+#' @param path_survey Chemin du fichier Kobo survey (.xlsx). 
+#' @param sheet_survey Feuille contenant le survey dans le kobo (par défaut 2).
+#'
+#' @return Un tibble avec les types de colonnes correctement assignés.
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' raw <- read_raw_with_types(
+#'   path_raw_file = "data/04_preclean/msna25_preclean.xlsx",
+#'   path_survey = "data/01_docs/kobo/mli_msna_2025.xlsx",
+#'   sheet_survey = 2
+#' )
+#' }
+#'
+read_excel_kobo_with_types <- function(path_raw_file,
+                                path_survey,
+                                sheet_survey = 2) {
+  # Vérifications
+  if (!file.exists(path_raw_file)) {
+    stop("Le fichier brut n'existe pas : ", path_raw_file)
+  }
+  if (!file.exists(path_survey)) {
+    stop("Le fichier survey n'existe pas : ", path_survey)
+  }
+  
+  # Charger le survey
+  survey <- readxl::read_excel(path_survey, sheet = sheet_survey)
+  
+  if (!"type" %in% names(survey) || !"name" %in% names(survey)) {
+    stop("Le fichier survey doit contenir au moins les colonnes 'type' et 'name'.")
+  }
+  
+  # Extraire les variables numériques et texte
+  var_numerique <- survey %>%
+    dplyr::filter(.data$type == "integer") %>%
+    dplyr::pull(.data$name)
+  
+  var_text <- survey %>%
+    dplyr::filter(.data$type == "text") %>%
+    dplyr::pull(.data$name)
+  
+  # Lire seulement les noms de colonnes du fichier brut
+  raw_tmp <- readxl::read_excel(path_raw_file, n_max = 0)
+  
+  # Trouver les positions
+  pos_var_numerique <- match(var_numerique, names(raw_tmp)) %>% stats::na.omit()
+  pos_var_text <- match(var_text, names(raw_tmp)) %>% stats::na.omit()
+  
+  # Construire le vecteur col_types
+  col_types_vec <- rep("guess", ncol(raw_tmp))
+  if (length(pos_var_numerique) > 0) col_types_vec[pos_var_numerique] <- "numeric"
+  if (length(pos_var_text) > 0) col_types_vec[pos_var_text] <- "text"
+  
+  # Relire avec typage correct
+  raw <- readxl::read_excel(path_raw_file, col_types = col_types_vec)
+  
+  return(raw)
+}
