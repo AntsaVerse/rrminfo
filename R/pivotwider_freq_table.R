@@ -37,7 +37,7 @@ pivotwider_freq_table <- function(df, admin, pop_group, question, reponse, value
       names_from = c({{question}}, {{reponse}}),
       values_from = c({{value}}),
       names_sep = "."
-    )%>%
+    ) %>%
     dplyr::select(-!!moe_sym, -!!n_sym)
 
   # Étape 2 : Calcul des stats moe/n par question
@@ -52,7 +52,7 @@ pivotwider_freq_table <- function(df, admin, pop_group, question, reponse, value
       summarise(
         moe_mean   = mean(!!moe_sym, na.rm = TRUE),
         moe_median = median(!!moe_sym, na.rm = TRUE),
-        n    = max(!!n_sym, na.rm = TRUE),
+        n          = max(!!n_sym, na.rm = TRUE),
         .groups    = "drop"
       )
   }, .progress = TRUE)
@@ -76,10 +76,42 @@ pivotwider_freq_table <- function(df, admin, pop_group, question, reponse, value
         rlang::as_name(rlang::ensym(pop_group))
       )
     )
- 
-  # Étape 4 : Calcul des moyennes finales par groupe
-  cat(cli::col_magenta("Étape 4/4 : Calcul des moyennes finales par groupe...\n"))
 
+  # Étape 4 : Réorganisation des colonnes par bloc (avant summarise)
+  cat(cli::col_magenta("Étape 4/4 : Réorganisation des colonnes par bloc...\n"))
+
+  arrange_columns <- function(df) {
+
+    q_cols <- df %>% 
+      select(-{{admin}}, -{{pop_group}}) %>% 
+      select(matches("^[^\\.]+\\.[^\\.]+$")) %>% 
+      names()
+
+    questions <- unique(sub("\\..*$", "", q_cols))
+
+    ordered_cols <- c(
+      rlang::as_name(rlang::ensym(admin)),
+      rlang::as_name(rlang::ensym(pop_group))
+    )
+
+    for (q in questions) {
+      resp_cols <- q_cols[startsWith(q_cols, paste0(q, "."))]
+
+      stats_cols <- c(
+        paste0("moe_mean.", q, ".moe_mean"),
+        paste0("moe_median.", q, ".moe_median"),
+        paste0("n.", q, ".n")
+      )
+
+      ordered_cols <- c(ordered_cols, resp_cols, stats_cols)
+    }
+
+    df %>% select(all_of(ordered_cols))
+  }
+
+  df_final <- arrange_columns(df_final)
+
+  # Étape 5 : Calcul des moyennes finales par groupe
   df_final <- df_final %>%
     dplyr::group_by({{admin}}, {{pop_group}}) %>%
     dplyr::summarise(
@@ -90,45 +122,6 @@ pivotwider_freq_table <- function(df, admin, pop_group, question, reponse, value
       dplyr::across(where(is.numeric), ~ ifelse(is.nan(.x), 0, .x))
     )
 
-  # Étape 5 : Réorganisation des colonnes
-
-  arrange_columns <- function(df) {
-
-  # 1. Récupérer les colonnes "question.reponse"
-  q_cols <- df %>% 
-    select(-{{admin}}, -{{pop_group}}) %>% 
-    select(matches("^[^\\.]+\\.[^\\.]+$")) %>% 
-    names()
-
-  # 2. Extraire les noms de questions (avant le point)
-  questions <- unique(sub("\\..*$", "", q_cols))
-
-  # 3. Construire l'ordre final
-  ordered_cols <- c(
-    rlang::as_name(rlang::ensym({{admin}})),
-    rlang::as_name(rlang::ensym({{pop_group}}))
-  )
-
-  for (q in questions) {
-    # colonnes réponses de la question q
-    resp_cols <- q_cols[startsWith(q_cols, paste0(q, "."))]
-
-    # colonnes stats de la question q
-    stats_cols <- c(
-      paste0("moe_mean.", q, ".moe_mean"),
-      paste0("moe_median.", q, ".moe_median"),
-      paste0("n.", q, ".n")
-    )
-
-    # ajouter au vecteur d'ordre final
-    ordered_cols <- c(ordered_cols, resp_cols, stats_cols)
-  }
-
-  # 4. Réorganiser
-  df %>% select(all_of(ordered_cols))
-}
-  df_final <- df_final %>% arrange_columns({{admin}}, {{pop_group}})
-  
   cat(cli::col_cyan("✅ Traitement terminé !...\n"))
   return(df_final)
 }
