@@ -35,7 +35,8 @@ pivotwider_freq_table <- function(df, admin, pop_group, question, reponse, value
   df_wide <- df %>%
     tidyr::pivot_wider(
       names_from = c({{question}}, {{reponse}}),
-      values_from = c({{value}})
+      values_from = c({{value}}),
+      names_sep = "."
     )%>%
     dplyr::select(-!!moe_sym, -!!n_sym)
 
@@ -60,7 +61,7 @@ pivotwider_freq_table <- function(df, admin, pop_group, question, reponse, value
     tidyr::pivot_wider(
       names_from  = {{question}},
       values_from = c(moe_mean, moe_median, n),
-      names_glue  = "{.name}_{.value}"
+      names_glue  = "{.name}.{.value}"
     )
 
   # Étape 3 : Fusionner les tables
