@@ -105,8 +105,8 @@ pivotwider_freq_table <- function(df, admin, pop_group, question, reponse, value
 
   # 3. Construire l'ordre final
   ordered_cols <- c(
-    rlang::as_name(rlang::ensym(admin)),
-    rlang::as_name(rlang::ensym(pop_group))
+    rlang::as_name(rlang::ensym({{admin}})),
+    rlang::as_name(rlang::ensym({{pop_group}}))
   )
 
   for (q in questions) {
