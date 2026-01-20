@@ -61,7 +61,8 @@ pivotwider_freq_table <- function(df, admin, pop_group, question, reponse, value
     tidyr::pivot_wider(
       names_from  = {{question}},
       values_from = c(moe_mean, moe_median, n),
-      names_glue  = "{.name}.{.value}"
+      names_glue  = "{.name}.{.value}",
+      names_sep   = "."
     )
 
   # Étape 3 : Fusionner les tables
@@ -75,17 +76,7 @@ pivotwider_freq_table <- function(df, admin, pop_group, question, reponse, value
         rlang::as_name(rlang::ensym(pop_group))
       )
     )
-  # Réorganisation des colonnes
-  df_final <- df_final %>%
-    dplyr::select(
-      {{admin}},
-      {{pop_group}},
-      dplyr::matches("^.+\\.[A-Za-z0-9]+$"),          # Q.A, Q.B...
-      dplyr::matches("^moe_mean\\..+$"),             # moe_mean_Q.moe_mean
-      dplyr::matches("^moe_median\\..+$"),           # moe_median_Q.moe_median
-      dplyr::matches("^n\\..+$")                     # n_Q.n
-    )
-  
+ 
   # Étape 4 : Calcul des moyennes finales par groupe
   cat(cli::col_magenta("Étape 4/4 : Calcul des moyennes finales par groupe...\n"))
 
