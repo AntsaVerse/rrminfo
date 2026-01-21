@@ -50,7 +50,7 @@ create_question_choice_labels <- function(survey, choices) {
     dplyr::select(question_name, question_label, list_name)
 
   # Jointure questions ↔ choix
-  question_labels %>%
+  out <- question_labels %>%
     dplyr::left_join(choices_clean, by = "list_name")
   
 # ======================
@@ -90,4 +90,5 @@ create_question_choice_labels <- function(survey, choices) {
   }
   
 }
+
 
