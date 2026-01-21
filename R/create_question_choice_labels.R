@@ -52,4 +52,42 @@ create_question_choice_labels <- function(survey, choices) {
   # Jointure questions ↔ choix
   question_labels %>%
     dplyr::left_join(choices_clean, by = "list_name")
+  
+# ======================
+  # 🔔 Messages de contrôle
+  # ======================
+
+  missing_questions <- out %>%
+    dplyr::filter(is.na(question_label) | question_label == "") %>%
+    dplyr::distinct(question_name) %>%
+    dplyr::pull(question_name)
+
+  missing_choices <- out %>%
+    dplyr::filter(is.na(choice_label) | choice_label == "") %>%
+    dplyr::distinct(choice_name) %>%
+    dplyr::pull(choice_name)
+
+  if (length(missing_questions) > 0 || length(missing_choices) > 0) {
+
+    message("⚠️ Labels manquants détectés :")
+
+    if (length(missing_questions) > 0) {
+      message(
+        "  - Questions sans label : ",
+        paste(missing_questions, collapse = ", ")
+      )
+    }
+
+    if (length(missing_choices) > 0) {
+      message(
+        "  - Choices sans label : ",
+        paste(missing_choices, collapse = ", ")
+      )
+    }
+
+  } else {
+    message("✅ Tous les questions et choices ont un label.")
+  }
+  
 }
+
