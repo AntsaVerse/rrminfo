@@ -96,6 +96,12 @@ add_frequency_table_labels <- function(
   # ======================
   # 7. Ordre final
   # ======================
-  add_label_t %>%
+  lab_t<- add_label_t %>%
     dplyr::select(dplyr::all_of(names(freq_h_table_output)))
+
+  out<-lab_t%>%
+  dplyr::bind_rows(freq_h_table_output)
+
+  return(out)
 }
+
