@@ -88,7 +88,9 @@ create_question_choice_labels <- function(survey, choices) {
   } else {
     message("✅ Tous les questions et choices ont un label.")
   }
-  
+
+  return(out)
 }
+
 
 
